@@ -1,26 +1,32 @@
+// Copyright 2024 Maximilian Heim
+
 include <BOSL2/std.scad>
 
-$fn = 91;
+// adjust depending on size
+$fn = 70;
 
-// SETUP
+// DEFAULTS, DO NOT MODIFY
+default_wheel_mount_width = 15;
+default_wheel_mount_depth = 35;
+default_wheel_mount_height = 7;
+default_wheel_mount_tolerance = 0.35;
 
-// inner diameter of wheel
-wheel_diameter = 120;
+// USER DEFINED
+// wheel
+wheel_diameter = 120; // inner diameter of wheel
+wheel_thickness = 3.5; // thickness of wheel wall
 
-// thickness of outer part
-wheel_thickness = 3.5;
-
-
+// tire
 tire_thickness = 4;
-tire_middle_height = 35;
-tire_indent_depth = 1.5;
-tire_indent_height = 4;
-tire_grip_degrees = 15;
-tire_grip_radius = 0.74;
+tire_middle_height = 35; // height of raised section
+tire_indent_depth = 1.5; // indent for no glue mount
+tire_indent_height = 4; // indent height, should be roughly 1/8 height
+tire_grip_degrees = 15; // texture, degrees between sections
+tire_grip_radius = 0.74; // radius of holes
 
 // diameter for axis
-bore_diameter = 4.5;
-bore_diameter_with_key = 3.4;
+bore_diameter = 4.5; // diameter of axis, only modifies mount, wheel does not use this to be compatible with different types of axes
+bore_diameter_with_key = 3.4; // with flat side, total radius
 bore_screw_fixation_diameter = 3.4;
 
 wheel_height = 45;
@@ -31,13 +37,15 @@ wheel_connectors_width = 2.1;
 
 // for mount
 wheel_mount_offset = 7;
-wheel_mount_width = 15;
-wheel_mount_depth = 35;
-wheel_mount_height = 7;
-wheel_mount_tolerance = 0.35;
+
+wheel_mount_width = default_wheel_mount_width;
+wheel_mount_depth = default_wheel_mount_depth;
+wheel_mount_height = default_wheel_mount_height;
+wheel_mount_tolerance = default_wheel_mount_tolerance;
 wheel_mount_slit_width = 0.8;
 wheel_mount_sink_height = 3.5;
 wheel_mount_sink_radius = 3.5;
+
 
 
 // INTERNAL
@@ -115,16 +123,12 @@ module wheel() {
                    rotate([0, 0, i])
                     translate([-wheel_connectors_width/2, -frame_inner_radius, 0])
                         cube([wheel_connectors_width, frame_inner_diameter, w_m_o + w_m_h]);
-               cylinder(h=w_m_o + w_m_h, r=(w_m_d / 2) * 1.2);
                }
+               cylinder(h=w_m_o + w_m_h, r=(w_m_d / 2) * 1.2);
             }
             // for the mount
             translate([0, 0, 1]);
-            intersection(){
             cylinder(h=w_h, r=b_r);
-            translate([- b_r + (b_d - bore_diameter_with_key), - b_r, 0])
-            cube([b_d, b_d, w_h]);
-        }
             
             translate([- w_m_w/2 - w_m_t, - w_m_d/2 - w_m_t, w_m_o])
             cube([w_m_w + w_m_t * 2, w_m_d + w_m_t * 2, w_m_h]);
@@ -159,7 +163,7 @@ module axis_mount(side) {
             cube([w_m_s_w, w_m_d, w_m_h + b_s_f_d * 3]);
         // screws for clamp
         for(i =[-1 : 2 : 1]) {
-            translate([-b_r - 3.5, i * (b_d/2 + b_s_f_d/2 + 1.5), w_m_h + (b_s_f_d * 3 / 2)])
+            translate([-w_m_w/2, i * (b_d/2 + b_s_f_d/2 + 1.5), w_m_h + (b_s_f_d * 3 / 2)])
                 rotate([0, 90, 0])
                     cylinder(h=w_m_w, r=b_s_f_d/2);
         }
@@ -217,8 +221,8 @@ module tire() {
        }
    }   
 }
-//wheel();
+wheel();
 //axis_mount(0);
 //axis_mount(1);
 //color("black", 1.0)
-tire();
+//tire();
